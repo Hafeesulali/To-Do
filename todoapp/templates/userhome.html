@@ -1,0 +1,14 @@
+{%extends 'base.html'%}
+{%block body_block%}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <h1>Welcome {{request.user}}</h1>
+        <a href="{%url 'createtodo'%}" class="btn btn-warning">Create New To-do</a>
+        <a href="{%url 'alltodos'%}" class="btn btn-primary">View my To-do</a>
+    </div>
+    <div class="col-4"></div>
+
+</div>
+
+{%endblock%}
