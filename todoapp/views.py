@@ -3,8 +3,10 @@ from todoapp.forms import UserRegistrationForm, LoginFrom, TodoForm, TodoChangeF
 from django.views.generic import CreateView, View, TemplateView, ListView, DetailView, UpdateView
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from todoapp.models import Todos
+from todoapp.decorators import sign_in_required
+from django.utils.decorators import method_decorator
 
 
 # Create your views here.
@@ -36,10 +38,18 @@ class SignInView(View):
             return render(request, "login.html", {"form": form})
 
 
+@method_decorator(sign_in_required, name="dispatch")
 class UserHome(TemplateView):
     template_name = "userhome.html"
 
+    # def get(self, request, *args, **kwargs):
+    #     if request.user.is_authenticated:
+    #         return render(request, self.template_name)
+    #     else:
+    #         return redirect("signin")
 
+
+@method_decorator(sign_in_required, name="dispatch")
 class TodoCreateView(CreateView):
     model = Todos
     form_class = TodoForm
@@ -57,6 +67,7 @@ class TodoCreateView(CreateView):
             return render(request, self.template_name, {"form": form})
 
 
+@method_decorator(sign_in_required, name="dispatch")
 class TodoListView(ListView):
     model = Todos
     template_name = "list_todos.html"
@@ -69,14 +80,14 @@ class TodoListView(ListView):
     #     qs = Todos.objects.filter(user=request.user)
     #     return render(request, self.template_name, {"todos": qs})
 
-
+@method_decorator(sign_in_required,name="dispatch")
 class TodoDetail(DetailView):
     model = Todos
     template_name = "todo_detail.html"
     context_object_name = "todo"
     pk_url_kwarg = "id"
 
-
+@method_decorator(sign_in_required,name="dispatch")
 class EditTodo(UpdateView):
     model = Todos
     form_class = TodoChangeForm
@@ -84,8 +95,13 @@ class EditTodo(UpdateView):
     pk_url_kwarg = "id"
     success_url = reverse_lazy("alltodos")
 
-
-def remove_todo(request, id):
-    todos = Todos.objects.get(id=id)
+@sign_in_required
+def remove_todo(request, *args,**kwargs):
+    todos = Todos.objects.get(id=kwargs["id"])
     todos.delete()
     return redirect("alltodos")
+
+@sign_in_required
+def sign_out(request,*args,**kwargs):
+    logout(request)
+    return redirect("signin")
