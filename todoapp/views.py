@@ -62,6 +62,13 @@ class TodoListView(ListView):
     template_name = "list_todos.html"
     context_object_name = "todos"
 
+    def get_queryset(self):
+        qs = Todos.objects.filter(user=self.request.user)
+        return qs
+    # def get(self, request, *args, **kwargs):
+    #     qs = Todos.objects.filter(user=request.user)
+    #     return render(request, self.template_name, {"todos": qs})
+
 
 class TodoDetail(DetailView):
     model = Todos
